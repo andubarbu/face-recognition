@@ -1,0 +1,7 @@
+.form {
+    width: 700px;
+    background: linear-gradient(170deg, rgb(35, 166, 200) 0%, rgb(39, 213, 216) 100%);
+}
+.form > button {
+    background: rgb(35, 166, 200);
+}

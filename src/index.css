@@ -1,3 +1,7 @@
+html {
+  background: linear-gradient(340deg, rgb(39, 213, 216) 0%, rgba(253,187,45,1) 100%);
+  background-attachment: fixed;
+}
 body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
@@ -5,9 +9,15 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  font-family: "Trebuchet MS", Helvetica, sans-serif;
 }
 
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
+}
+
+button {
+  cursor: pointer;
+  background: rgb(39, 213, 216);
 }
