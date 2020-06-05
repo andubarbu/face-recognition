@@ -12,6 +12,7 @@
   flex-direction: column;
   justify-content: center;
   align-items: center;
+  flex-wrap: wrap;
 }
 
 .particles {
@@ -26,4 +27,10 @@
 .ranked {
   background: rgba(0, 0, 0, 0.2);
   width: 700px;
+}
+
+.heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
 }
