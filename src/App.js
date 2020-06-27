@@ -10,10 +10,6 @@ import FaceRecognition from './components/facerecognition/FaceRecognition';
 import SignIn from './components/signin/SignIn';
 import Register from './components/register/Register';
 
-const app = new Clarifai.App({
- apiKey: '4ea4832839fa4e8ba507c6420d5708a0'
-});
-
 const particlesOptions = {
   particles: {
     number: {
@@ -26,6 +22,22 @@ const particlesOptions = {
   }
 }
 
+const initialState = {
+  input: '',
+  imgUrl: '',
+  box: {},
+  route: 'signin',
+  isSignedIn: false,
+  user: {
+    id: '',
+    name: '',
+    email: '',
+    password: '',
+    entries: 0,
+    joined: ''
+  }
+}
+
 class App extends Component {
   constructor() {
     super();
@@ -34,15 +46,34 @@ class App extends Component {
       imgUrl: '',
       box: {},
       route: 'signin',
-      isSignedIn: false
+      isSignedIn: false,
+      user: {
+        id: '',
+        name: '',
+        email: '',
+        password: '',
+        entries: 0,
+        joined: ''
+      }
     }
+  }
+
+  loadUser = (data) => {
+    this.setState({user: {
+      id: data.id,
+      name: data.name,
+      email: data.email,
+      password: data.password,
+      entries: data.entries,
+      joined: data.joined
+    }});
   }
 
   onRouteChange = (newRoute) => {
     if (newRoute === 'signin') {
-      this.setState({isSignedIn: false})
+      this.setState(initialState);
     } else if (newRoute === 'home') {
-      this.setState({isSignedIn: true})
+      this.setState({isSignedIn: true});
     }
     this.setState({route: newRoute});
   }
@@ -72,13 +103,32 @@ class App extends Component {
 
   onButtonSubmit = () => {
     this.setState({imgUrl: this.state.input});
-      app.models
-        .predict(
-          Clarifai.FACE_DETECT_MODEL,
-          this.state.input)
-        .then(response => this.displayFaceBox(this.calculateFaceLocation(response)))
-        .catch(err => console.log(err));
+    fetch('https://frozen-shore-02309.herokuapp.com/imageurl', {
+      method: 'post',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        input: this.state.input
+      })
+    })
+    .then(response => response.json())
+    .then(response => {
+      if (response) {
+        fetch('https://frozen-shore-02309.herokuapp.com/image', {
+          method: 'put',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({
+            id: this.state.user.id
+          })
+        })
+        .then(response => response.json())
+        .then(count => {
+          this.setState(Object.assign(this.state.user, {entries: count}))
+        })
       }
+      this.displayFaceBox(this.calculateFaceLocation(response))
+    })
+    .catch(err => console.log(err));
+  }
 
   render() {
     return(
@@ -89,15 +139,15 @@ class App extends Component {
           <Navigation isSignedIn={this.state.isSignedIn} onRouteChange={this.onRouteChange} />
         </div>
         {this.state.route === 'signin'
-          ? <SignIn onRouteChange={this.onRouteChange} />
+          ? <SignIn loadUser={this.loadUser} onRouteChange={this.onRouteChange} />
           : this.state.route === 'home'
           ? <div className='center-vertical up-top'>
-              <Rank />
+              <Rank name={this.state.user.name} entries={this.state.user.entries} />
               <ImageLinkForm onInputChange={this.onInputChange} onButtonSubmit={this.onButtonSubmit}/>
               <FaceRecognition box={this.state.box} imgUrl={this.state.imgUrl}/>
             </div>
           : this.state.route === 'register'
-          ? <Register onRouteChange={this.onRouteChange}/>
+          ? <Register onRouteChange={this.onRouteChange} loadUser={this.loadUser}/>
           : <h1>Error 404</h1>
         }
       </div>
